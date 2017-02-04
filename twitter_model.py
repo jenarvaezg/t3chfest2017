@@ -16,7 +16,7 @@ def create_dic():
             line = line.replace("\t", " ")
             l = line.split(" ")
             mark = l[-1]
-            key = " ".join( l[0:-1] ) 
+            key = " ".join( l[0:-1] )
 
             d[key] = int(mark)
 
@@ -31,6 +31,7 @@ def post_update( string ):
     except twitter.error.TwitterError:
         s = False
     return s
+
 
 def track( usernames, hashtags):
     user_ids = []
@@ -52,17 +53,17 @@ def track( usernames, hashtags):
 
         #print(tweet)
         print( "User: {user}, Tweet: '{tweet}', Lang: '{lang}'".format(user=tweet.user.screen_name, tweet=tweet.text, lang=tweet.lang))
-        
+
 
         score = score_analysis(tweet.text, dic)
         res = [tweet.user.screen_name, tweet.text, tweet.lang, score]
-        
+
         SCORES.append( score )
-       
-        telegrambot.updateFlag( tweet.lang )
+
+        telegrambot.updateLanguage( tweet.lang )
         telegrambot.updateSentiment( sum(SCORES) / len(SCORES) )
         print(res)
-    
+
 
 def score_analysis( tweet, dic ):
     tokens = tweet.split(" ")
@@ -70,15 +71,15 @@ def score_analysis( tweet, dic ):
     accum = 0
 
     for t in tokens:
+        if t.startswith("#"):
+            continue
         cont += 1
         v = dic.get(t, 0)
         accum += v
         accum = accum / cont
 
     return accum
-        
+
 
 if __name__ == "__main__":
     track(config.users, config.hashtags)
-
-    

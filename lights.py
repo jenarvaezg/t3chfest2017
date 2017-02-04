@@ -9,7 +9,10 @@ b = Bridge('10.0.1.3')
 b.connect()
 lights = b.get_light_objects('id')
 #first right then left then middle
-flag_colors_dict = {"es": [0, 0, 13750], 'pt': [0, 25500, 0], 'fr': [0, 46920, 30000]}
+flag_colors_dict = {"es": [0, 0, 13750], 'pt': [0, 25500, 0], 'fr': [0, 46920, 30000],
+    'white': [30000, 30000, 30000], 'green': [25500, 25500, 25500], 'red': [0, 0, 0],
+    'en': [0, 30000, 46920]
+}
 
 partyThread = ""
 
@@ -41,9 +44,7 @@ def stop_party():
 
 def partyLikeIts1999():
     global partyThread
-    print "TURNING ON"
     turn_on(-1)
-    print "TURNED ON"
     if partyThread != "":
         return
     partyThread = threading.Thread(target=run_party, args=("task",))
