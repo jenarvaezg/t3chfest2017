@@ -11,7 +11,7 @@ def create_dic( fichero ):
 
     with open( fichero ) as f:
         for line in f:
-       
+
             line = line.rstrip()
             line = line.replace("\t", " ")
             l = line.split(" ")
@@ -54,23 +54,23 @@ def track( usernames, hashtags):
             tweet = twitter.Status.NewFromJsonDict( line )
 
         #print(tweet)
-        print( "User: {user}, Tweet: '{tweet}', Lang: '{lang}'".format(user=tweet.user.screen_name, tweet=tweet.text, lang=tweet.lang))
+        try:
+            print( "User: {user}, Tweet: '{tweet}', Lang: '{lang}'".format(user=tweet.user.screen_name, tweet=tweet.text, lang=tweet.lang))
+        except:
+            pass
 
         if ( tweet.lang == 'es'):
-            print("Utilizando diccionario español")
+            print("Utilizando diccionario spanish")
             score = score_analysis(tweet.text, dic_es)
-
         else:
             score = score_analysis(tweet.text, dic)
-        
+
         res = [tweet.user.screen_name, tweet.text, tweet.lang, score]
 
         SCORES.append( score )
 
         telegrambot.updateLanguage( tweet.lang )
         telegrambot.updateSentiment( sum(SCORES) / len(SCORES) )
-        print(res)
-
 
 def score_analysis( tweet, dic ):
     tokens = tweet.split(" ")
@@ -80,11 +80,11 @@ def score_analysis( tweet, dic ):
     for t in tokens:
         if t.startswith("#"):
             continue
+
         cont += 1
         v = dic.get(t, 0)
+        print t, v
         accum += v
-        accum = accum / cont
-
     return accum
 
 

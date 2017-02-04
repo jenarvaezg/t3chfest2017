@@ -4,6 +4,8 @@ import threading
 import twitter_model
 import config
 import time
+import mailgun
+import watchdog
 
 from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters, RegexHandler,
                           ConversationHandler)
@@ -13,6 +15,7 @@ twitter_thread = None
 bot = None
 current_view_thread = None
 twitter_lock = threading.Lock()
+
 
 
 def updateLanguage(new_language):
@@ -26,7 +29,7 @@ def updateLanguage(new_language):
 def updateSentiment(new_sentiment):
     twitter_lock.acquire()
     f = open("sentiment.txt", "w")
-    print "new sentiment is"  + str(new_sentiment)
+    print "new sentiment is "  + str(new_sentiment)
     f.write(str(new_sentiment))
     f.close()
     twitter_lock.release()
@@ -67,7 +70,7 @@ def turn_on(params):
     except e:
         print e
         return "Error turning on", params[0]
-    return "Turned on", params[0]
+    return "Turned on " +  params[0]
 
 
 def turn_off(params):
@@ -79,7 +82,7 @@ def turn_off(params):
     except e:
         print e
         return "Error turning off", params[0]
-    return "Turned off", params[0]
+    return "Turned off " +  params[0]
 
 def flag(params):
     stop_view_thread()
@@ -89,7 +92,7 @@ def flag(params):
             lights.set_flag()
             return "Set default flag"
         lights.set_flag(params[0]) #to-do
-        return "Set flag to ", params[0]
+        return "Set flag to " + params[0]
     except e:
         print e
         return "Error setting flag"
@@ -170,6 +173,20 @@ def tweetStuff(params):
     twitter_model.post_update(to_tweet)
     return "Tweet sent"
 
+def mail(params):
+    if params == []:
+        return "You should tell me what to mail"
+    to_mail = " ".join(params)
+    mailgun.send_mail(config.address, to_mail)
+    return "Mail sent to " + config.address
+
+def get_status():
+    status = lights.get_status()
+    s = "Lights reachable: %d. Lights on: %d\n" % (status['reachable'], status['on'])
+    for light in status['lights']:
+        s+= "Light %s: Hue: %d. Brightness: %d. On: %s. Reachable: %s\n" % (light['id'], light['hue'], light['brightness'], light['on'], light['reachable'])
+    return s[:len(s)-2]
+
 def handler(bot, update):
     print getLanguage()
     global tgbot
@@ -192,6 +209,10 @@ def handler(bot, update):
         to_return = turn_off(tokenized_text[1:])
     elif tokenized_text[0] == "/view":
         to_return = view(tokenized_text[1:])
+    elif tokenized_text[0] == "/mail":
+        to_return = mail(tokenized_text[1:])
+    elif tokenized_text[0] == "/status":
+        to_return = get_status()
     else:
         to_return = "Invalid command"
     update.message.reply_text(to_return)
@@ -202,10 +223,10 @@ def start():
 
     dp = updater.dispatcher
 
-
     msg_handler = MessageHandler(Filters.command, handler)
     dp.add_handler(msg_handler)
-
+    watchdod_thread = threading.Thread(target=watchdog.monitorize, args=("task",))
+    watchdod_thread.start()
     # Start the Bot
     updater.start_polling()
 

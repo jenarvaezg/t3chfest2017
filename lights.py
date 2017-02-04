@@ -16,6 +16,24 @@ flag_colors_dict = {"es": [0, 0, 13750], 'pt': [0, 25500, 0], 'fr': [0, 46920, 3
 
 partyThread = ""
 
+
+def get_status():
+    status = {"on" : 0, 'reachable': 0, 'lights': []}
+    for light in lights:
+        if lights[light].on:
+            status['on'] = status['on'] + 1
+        if lights[light].reachable:
+            status['reachable'] = status['reachable'] + 1
+        l = {}
+        l['hue'] = lights[light].hue
+        l['brightness'] = lights[light].brightness
+        l['id'] = light
+        l['on'] = lights[light].on
+        l['reachable'] = lights[light].reachable
+        status['lights'].append(l)
+    return status
+
+
 def run_party(arg):
     t = threading.currentThread()
     i = 0
@@ -57,6 +75,7 @@ def turn_on(light_id):
     if light_id == -1:
         for light in lights:
             lights[light].on = True
+            lights[light].brightness = 255
     else:
         lights[light_id].on = True
 
@@ -79,7 +98,36 @@ def set_flag(country_code="es"):
         lights[light_id].hue = color
         light_id += 1
 
+def alarm():
+    turn_on(-1)
+    for light in lights:
+        lights[light].hue = 0
+        lights[light].brightness = 255
+    time.sleep(1)
+    for light in lights:
+        lights[light].brightness = 0
+    time.sleep(1)
+    for light in lights:
+        lights[light].brightness = 255
+    time.sleep(1)
+    for light in lights:
+        lights[light].brightness = 0
+    time.sleep(1)
+    for light in lights:
+        lights[light].brightness = 255
+
+def init():
+    for light in lights:
+        lights[light].brightness = 255
+        lights[light].hue = 30000
+
+init()
+
 if __name__ == "__main__":
-    partyLikeIts1999()
+    """partyLikeIts1999()
+    print "going to sleep"
     time.sleep(5)
+    print "woke up"
     stop_party()
+    print "bye"""
+    alarm()
