@@ -6,10 +6,10 @@ api = twitter.Api(consumer_key='qbtL7uSdKCf0iRHjk38mMoDTE', consumer_secret='I7c
 
 SCORES = []
 
-def create_dic():
+def create_dic( fichero ):
     d = {}
 
-    with open("dic.txt") as f:
+    with open( fichero ) as f:
         for line in f:
        
             line = line.rstrip()
@@ -22,7 +22,8 @@ def create_dic():
 
     return d
 
-dic = create_dic()
+dic = create_dic( "dic.txt" )
+dic_es = create_dic("dic_es.txt")
 
 def post_update( string ):
 
@@ -36,6 +37,7 @@ def post_update( string ):
 def track( usernames, hashtags):
     user_ids = []
     global dic
+    global dic_es
     global SCORES
 
     if len( usernames ):
@@ -54,8 +56,13 @@ def track( usernames, hashtags):
         #print(tweet)
         print( "User: {user}, Tweet: '{tweet}', Lang: '{lang}'".format(user=tweet.user.screen_name, tweet=tweet.text, lang=tweet.lang))
 
+        if ( tweet.lang == 'es'):
+            print("Utilizando diccionario español")
+            score = score_analysis(tweet.text, dic_es)
 
-        score = score_analysis(tweet.text, dic)
+        else:
+            score = score_analysis(tweet.text, dic)
+        
         res = [tweet.user.screen_name, tweet.text, tweet.lang, score]
 
         SCORES.append( score )
