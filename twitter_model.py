@@ -1,6 +1,10 @@
 import twitter
+import config
+import telegrambot
 
 api = twitter.Api(consumer_key='qbtL7uSdKCf0iRHjk38mMoDTE', consumer_secret='I7cbfxeDosTjrlnt99eBV2bfa3bYf28u0l00RlpgvNv7nUcof0', access_token_key='827817486145949696-3y565mBYrQvdek4p6XbPskietg69KQo', access_token_secret='KjBRjb4eY1DFgsBuWClv9dDRDyaYFYIvPC4dpBWsGCqme')
+
+SCORES = []
 
 def create_dic():
     d = {}
@@ -13,16 +17,20 @@ def create_dic():
 
     return d
 
+dic = create_dic()
+
 def post_update( string ):
-    
-    try: 
+
+    try:
         s = api.PostUpdate(string)
     except twitter.error.TwitterError:
         s = False
     return s
 
-def track( usernames, hashtags, dic ):
+def track( usernames, hashtags):
     user_ids = []
+    global dic
+    global SCORES
 
     if len( usernames ):
         for user in usernames:
@@ -31,9 +39,9 @@ def track( usernames, hashtags, dic ):
             user_ids.append( str(u.id) )
 
     stream =  api.GetStreamFilter( follow = user_ids, track=hashtags )
-    
+
     for line in stream:
-        
+
         if 'in_reply_to_status_id' in line:
             tweet = twitter.Status.NewFromJsonDict( line )
 
@@ -43,9 +51,13 @@ def track( usernames, hashtags, dic ):
 
         score = score_analysis(tweet.text, dic)
         res = [tweet.user.screen_name, tweet.text, tweet.lang, score]
-
-        return res
-
+        
+        SCORES.append( score )
+       
+        telegrambot.updateFlag( tweet.lang )
+        telegrambot.updateSentiment( sum(SCORES) / len(SCORES) )
+        print(res)
+    
 
 def score_analysis( tweet, dic ):
     tokens = tweet.split(" ")
@@ -61,15 +73,7 @@ def score_analysis( tweet, dic ):
     return accum
         
 
-users = [
-            "@S1d3Ch4nn3l_",
-        ]
-hashtags = [
-        ]
+if __name__ == "__main__":
+    track(config.users, config.hashtags)
 
-TOTAL_SCORE  = 0
-
-dic = create_dic()
-
-track(users, hashtags, dic)
-
+    
