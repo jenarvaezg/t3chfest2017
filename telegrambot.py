@@ -163,6 +163,13 @@ def view(params):
         return "Displaying sentiment"
     return "You should tell me if you want to see language or sentiment"
 
+def tweetStuff(params):
+    if params == []:
+        return "You should tell me what to tweet"
+    to_tweet = " ".join(params)
+    twitter_model.post_update(to_tweet)
+    return "Tweet sent"
+
 def handler(bot, update):
     print getLanguage()
     global tgbot
@@ -175,8 +182,8 @@ def handler(bot, update):
         to_return = follow(tokenized_text[1:])
     elif tokenized_text[0]  == "/flag":
         to_return = flag(tokenized_text[1:])
-    elif tokenized_text[0] == "/send":
-        to_return = sendStuff(tokenized_text[1:])
+    elif tokenized_text[0] == "/tweet":
+        to_return = tweetStuff(tokenized_text[1:])
     elif tokenized_text[0] == "/party":
         to_return = party(tokenized_text[1:])
     elif tokenized_text[0] == "/on":
