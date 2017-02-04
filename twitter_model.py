@@ -11,7 +11,9 @@ def create_dic():
 
     with open("dic.txt") as f:
         for line in f:
-        
+       
+            line = line.rstrip()
+            line = line.replace("\t", " ")
             l = line.split(" ")
             mark = l[-1]
             key = " ".join( l[0:-1] ) 
