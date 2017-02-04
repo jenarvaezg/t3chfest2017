@@ -12,8 +12,11 @@ def create_dic():
     with open("dic.txt") as f:
         for line in f:
         
-            l = line.split("\t")
-            d[l[0]] = int(l[1])
+            l = line.split(" ")
+            mark = l[-1]
+            key = " ".join( l[0:-1] ) 
+
+            d[key] = int(mark)
 
     return d
 
