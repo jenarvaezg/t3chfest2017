@@ -12,6 +12,7 @@ def post_update( string ):
     return s
 
 def track( usernames, hashtags ):
+    print "started tracking"
     user_ids = []
 
     if len( usernames ):
