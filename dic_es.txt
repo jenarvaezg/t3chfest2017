@@ -1,4 +1,5 @@
 abundante 1
+bluehue 10
 admirable 1
 afectuoso 1
 agradable 1

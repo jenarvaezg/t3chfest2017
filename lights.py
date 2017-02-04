@@ -118,7 +118,8 @@ def alarm():
 
 def init():
     for light in lights:
-        lights[light].brightness = 255
+        lights[light].brightness = 254
+        lights[light].sat = 254
         lights[light].hue = 30000
 
 init()

@@ -137,8 +137,6 @@ def viewUpdatedSentiment(arg):
     while getattr(t, "do_run", True):
         print "setting sentiment " + str(getSentiment())
         sentiment = getSentiment()
-        print sentiment
-        print type(sentiment)
         sentiment = int(sentiment)
         if sentiment == 0:
             lights.set_flag("white")
@@ -185,6 +183,7 @@ def get_status():
     s = "Lights reachable: %d. Lights on: %d\n" % (status['reachable'], status['on'])
     for light in status['lights']:
         s+= "Light %s: Hue: %d. Brightness: %d. On: %s. Reachable: %s\n" % (light['id'], light['hue'], light['brightness'], light['on'], light['reachable'])
+    twitter_model.post_update(to_tweet)
     return s[:len(s)-2]
 
 def handler(bot, update):
