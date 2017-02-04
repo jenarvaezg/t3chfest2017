@@ -3,10 +3,15 @@
 
 import os
 import lights
+import threading
+import twitter_model
+import config
 
 from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters, RegexHandler,
                           ConversationHandler)
 
+
+twitter_thread = None
 
 def party(params):
     if params == []:
@@ -73,6 +78,10 @@ def handler(bot, update):
 
 
 def start():
+    print "STARTING"
+    global twitter_thread
+    twitter_thread = threading.Thread(target=twitter_model.track, args=(config.users, config.hashtags))
+    twitter_thread.start()
     updater = Updater(os.getenv("TELEGRAM_API"))
 
     dp = updater.dispatcher
@@ -87,5 +96,5 @@ def start():
     updater.idle()
 
 
-
-start()
+if __name__ == "__main__":
+    start()
