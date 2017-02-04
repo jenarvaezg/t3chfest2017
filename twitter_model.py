@@ -1,7 +1,23 @@
 import twitter
 import config
+import telegrambot
 
 api = twitter.Api(consumer_key='qbtL7uSdKCf0iRHjk38mMoDTE', consumer_secret='I7cbfxeDosTjrlnt99eBV2bfa3bYf28u0l00RlpgvNv7nUcof0', access_token_key='827817486145949696-3y565mBYrQvdek4p6XbPskietg69KQo', access_token_secret='KjBRjb4eY1DFgsBuWClv9dDRDyaYFYIvPC4dpBWsGCqme')
+
+SCORES = []
+
+def create_dic():
+    d = {}
+
+    with open("dic.txt") as f:
+        for line in f:
+
+            l = line.split("\t")
+            d[l[0]] = int(l[1])
+
+    return d
+
+dic = create_dic()
 
 def post_update( string ):
 
@@ -11,9 +27,11 @@ def post_update( string ):
         s = False
     return s
 
-def track( usernames, hashtags ):
-    print "started tracking"
+
+def track( usernames, hashtags):
     user_ids = []
+    global dic
+    global SCORES
 
     if len( usernames ):
         for user in usernames:
@@ -32,7 +50,31 @@ def track( usernames, hashtags ):
         print( "User: {user}, Tweet: '{tweet}', Lang: '{lang}'".format(user=tweet.user.screen_name, tweet=tweet.text, lang=tweet.lang))
 
 
+        score = score_analysis(tweet.text, dic)
+        res = [tweet.user.screen_name, tweet.text, tweet.lang, score]
+
+        SCORES.append( score )
+
+        telegrambot.updateLanguage( tweet.lang )
+        telegrambot.updateSentiment( sum(SCORES) / len(SCORES) )
+        print(res)
+
+
+def score_analysis( tweet, dic ):
+    tokens = tweet.split(" ")
+    cont = 0
+    accum = 0
+
+    for t in tokens:
+        if t.startswith("#"):
+            continue
+        cont += 1
+        v = dic.get(t, 0)
+        accum += v
+        accum = accum / cont
+
+    return accum
 
 
 if __name__ == "__main__":
-    track(config.usernames, config.hashtags)
+    track(config.users, config.hashtags)
