@@ -6,8 +6,7 @@ Only need to register a bot, set the bridge IP and go!
 
 *Usage*:
 
-```python telegrambot.py
-```
+`python telegrambot.py`
 
 *Funcionality*:
 
