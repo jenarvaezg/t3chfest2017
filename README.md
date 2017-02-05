@@ -32,7 +32,7 @@ Telegram bot to control the lighting system.
 
   # Schema of bot
 
-  ![Schema](/images/scheme.png)
+  ![Schema](/images/Scheme.png)
 
 
   # Architecture
